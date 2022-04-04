@@ -20,7 +20,7 @@ if (isset($_POST['submit'])){
         $user_email = mysqli_real_escape_string($connection, $user_email);
         $user_password = mysqli_real_escape_string($connection, $user_password);
 
-        //checking randsalt column for a default value
+        //querying database for randsalt value/checking for default value
         $query = "SELECT randsalt FROM users";
         $select_query = mysqli_query($connection, $query);
         confirmQuery($select_query);

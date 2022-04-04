@@ -30,6 +30,9 @@ if (isset($_POST['login'])){
         $db_user_role = $row['user_role'];
     }
 
+    //decrypting password
+    $user_password = crypt($user_password, $db_user_password);
+
     //validating the data sent against the data received; logic and action
     /*if ($username !== $db_username && $user_password !== $db_user_password){
         header("Location: ../index.php");

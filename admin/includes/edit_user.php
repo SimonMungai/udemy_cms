@@ -52,8 +52,17 @@ if (isset($_POST['edit_user'])){
         }
     }
 
+    //fetching randsalt default value from database
+    $query = "SELECT randsalt FROM users";
+    $select_query = mysqli_query($connection, $query);
+    confirmQuery($select_query);
+    //encrypting password
+    $row = mysqli_fetch_array($select_query);
+    $salt = $row['randsalt'];
+    $encrypted_password = crypt($user_password, $salt);
+
     //query to update table records
-    $query ="UPDATE users SET username = '{$username}', user_password = '{$user_password}', user_firstname = '{$user_firstname}', 
+    $query ="UPDATE users SET username = '{$username}', user_password = '{$encrypted_password}', user_firstname = '{$user_firstname}', 
                  user_lastname = '{$user_lastname}', user_email = '{$user_email}', user_image = '{$user_image}', 
                  user_role = '{$user_role}' WHERE user_id = {$the_user_id}";
 
