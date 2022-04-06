@@ -113,7 +113,7 @@ if (isset($_POST['edit_user'])){
     <div class="form-group">
         <label for="user_role">User role</label>
         <select name="user_role" id="">
-            <option value="subscriber"><?php echo $user_role?></option>
+            <option value="<?php echo $user_role?>"><?php echo $user_role?></option>
             <!--displaying options to change user role to-->
             <?php
             if ($user_role == 'admin'){
