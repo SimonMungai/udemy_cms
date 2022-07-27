@@ -21,7 +21,31 @@
                 //first way to filter the posts to be displayed i.e. published
                 //$query = "SELECT * FROM posts WHERE post_status =  'published'";
 
-                $query = "SELECT * FROM posts";
+                //pagination
+                //catching and processing the $_GET request
+                $per_page = 2;
+                if (isset($_GET['page'])){
+                    $page = $_GET['page'];
+                } else {
+                    $page = "";
+                }
+
+                if ($page == "" || $page == 1){
+                    $page_1 = 0;
+                } else {
+                    $page_1 = ($page * $per_page) - $per_page;
+                }
+                //finding out how many posts there are
+                $posts_count_query = "SELECT * FROM posts";
+                $select_posts_query = mysqli_query($connection, $posts_count_query);
+                $posts_count = mysqli_num_rows($select_posts_query);
+
+                //per-page functionality i.e. specifying how many posts per page
+                $posts_count = ceil($posts_count / $per_page); //ceil function rounds off the result into an integer. The result cannot be a float number. There is no a .something post.
+
+                //displaying posts functionality
+                //querying the database for posts information
+                $query = "SELECT * FROM posts LIMIT $page_1, $per_page";
                 $select_posts = mysqli_query($connection, $query);
 
                 while($row = mysqli_fetch_assoc($select_posts)){
@@ -44,11 +68,12 @@
                 </h1>
 
                 <!-- First Blog Post -->
+                        <!--<h1><?php /*echo $posts_count */?></h1>-->
                 <h2>
                     <a href="post.php?p_id=<?php echo $post_id ?>"><?php echo $post_title?></a>
                 </h2>
                 <p class="lead">
-                    by <a href="index.php"><?php echo $post_author?></a>
+                    by <a href="author_posts.php?author=<?php echo $post_author?>&p_id=<?php echo $post_id;?>"><?php echo $post_author?></a>
                 </p>
                 <p><span class="glyphicon glyphicon-time"></span> Posted on <?php echo $post_date?></p>
                 <hr>
@@ -79,6 +104,23 @@
         <!-- /.row -->
 
         <hr>
+
+        <!--pagination links-->
+        <ul class="pager">
+            <?php
+            for ($i = 1; $i <= $posts_count; $i++){
+                //adding some style to pager numbers
+                //determining current page
+                if ($i == $page){
+                    echo "<li><a class='active_link' href='index.php?page={$i}'>{$i}</a> </li>";
+                } else{
+                    echo "<li><a href='index.php?page={$i}'>{$i}</a> </li>";
+                }
+
+            }
+            ?>
+        </ul>
+
 
         <!--footer-->
         <?php

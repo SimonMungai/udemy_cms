@@ -43,6 +43,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin'){
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <!--admin loader-->
+    <link rel="stylesheet" href="css/loader.css">
+
     <!--summernote WYSIWYG CSS-->
     <!--CDN link-->
     <!--<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">-->

@@ -2,8 +2,7 @@
 <?php session_start()?>
 
 <?php
-//confirming if data is received from form
-if (isset($_POST['login'])){
+if (isset($_POST['login'])){ //checking if data is received from form
     $username = $_POST['username'];
     $user_password = $_POST['user_password'];
 
@@ -31,7 +30,7 @@ if (isset($_POST['login'])){
     }
 
     //decrypting password
-    $user_password = crypt($user_password, $db_user_password);
+    //$user_password = crypt($user_password, $db_user_password);
 
     //validating the data sent against the data received; logic and action
     /*if ($username !== $db_username && $user_password !== $db_user_password){
@@ -50,7 +49,8 @@ if (isset($_POST['login'])){
     }*/
 
     //an easier way to validate login
-    if ($username === $db_username && $user_password === $db_user_password) {
+    //if ($username === $db_username && $user_password === $db_user_password) { //older method of logging in
+    if (password_verify($user_password, $db_user_password)){
         //setting/assigning sessions
         //note: sessions are assigned value from right to left: opposite of variables
         $_SESSION['username'] = $db_username;

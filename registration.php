@@ -20,19 +20,22 @@ if (isset($_POST['submit'])){
         $user_email = mysqli_real_escape_string($connection, $user_email);
         $user_password = mysqli_real_escape_string($connection, $user_password);
 
-        //querying database for randsalt value/checking for default value
+        /*//querying database for randsalt value/checking for default value
         $query = "SELECT randsalt FROM users";
         $select_query = mysqli_query($connection, $query);
-        confirmQuery($select_query);
+        confirmQuery($select_query);*/
 
         /*while($row = mysqli_fetch_array($select_query)){
             echo $salt = $row['randsalt'];
         }*/
 
-        //encrypting
+        /*//encrypting
         $row = mysqli_fetch_array($select_query);
         $salt = $row['randsalt'];
-        $user_password = crypt($user_password, $salt);
+        $user_password = crypt($user_password, $salt);*/
+
+        //a new and simpler way of encrypting
+        $user_password = password_hash($user_password, PASSWORD_BCRYPT, array('cost' => 12));
 
         //query to insert values into database
         $query = "INSERT INTO users (username, user_email, user_password, user_role) VALUES ('{$username}', '{$user_email}', '{$user_password}', 'subscriber')";

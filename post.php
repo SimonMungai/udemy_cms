@@ -1,7 +1,9 @@
+<?php //ob_start() ?>
 <!--header-->
 <?php
 include "includes/db.php";
 include "includes/header.php";
+include "admin/functions.php";
 ?>
 
 <!--body-->
@@ -22,7 +24,14 @@ include "includes/header.php";
             //catching the p_id
             if (isset($_GET['p_id'])){
                 $the_post_id = $_GET['p_id'];
-            }
+
+                //preventing post views count from increasing after submitting comments - the action refreshes the page
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST'){
+                    //updating post_views_count
+                    $query = "UPDATE posts SET post_views_count = post_views_count + 1 WHERE  post_id = $the_post_id";
+                    $update_query = mysqli_query($connection, $query);
+                    //confirmQuery($update_query);
+                }
 
             //fetching data from the database
             $query = "SELECT * FROM posts WHERE post_id = $the_post_id";
@@ -58,51 +67,67 @@ include "includes/header.php";
                 <hr>
                 <?php
             }
+            } else {
+                header("Location: index.php");
+            }
             ?>
 
-
             <!-- Blog Comments -->
-            <!--code to insert comment to database-->
             <?php
-            if(isset($_POST['create_comment'])){
+            //checking for POST
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                //code to insert comment to database
+                if (isset($_POST['create_comment'])) {
 
-                //catching the post_id from the url
-                $the_post_id = $_GET['p_id'];
+                    //catching the post_id from the url
+                    $the_post_id = $_GET['p_id'];
 
-                //catching $_POST data
-                $comment_author = $_POST['comment_author'];
-                $comment_email  = $_POST['comment_email'];
-                $comment_content = $_POST['comment_content'];
+                    //catching $_POST data
+                    $comment_author = $_POST['comment_author'];
+                    $comment_email = $_POST['comment_email'];
+                    $comment_content = $_POST['comment_content'];
 
-                //form data validation
-                if (!empty($comment_author) && !empty($comment_email) && !empty($comment_content)){
+                    //form data validation
+                    if (!empty($comment_author) && !empty($comment_email) && !empty($comment_content)) {
 
-                //query to insert into database
-                $query = "INSERT INTO comments (comment_post_id, comment_author, comment_email, comment_content, comment_status, comment_date) 
+                        //query to insert into database
+                        $query = "INSERT INTO comments (comment_post_id, comment_author, comment_email, comment_content, comment_status, comment_date) 
 VALUES($the_post_id, '$comment_author', '$comment_email', '$comment_content', 'unapproved', now())";
 
-                $create_comment_query = mysqli_query($connection, $query);
+                        $create_comment_query = mysqli_query($connection, $query);
 
-                if (!$create_comment_query){
-                    die("Sorry, something is not right " . mysqli_error());
-                } else echo "Comment submitted successfully";
+                        //fixing form-resubmission message i.e. reloading the page afresh after comment submission
+                        //redirect("/cms/post.php?p_id = $the_post_id");
+                        /*$page = $_SERVER['PHP_SELF'];
+                        header("Location: $page");*/
 
-                //updating the post_comments_count
-                $query = "UPDATE posts SET post_comments_count = post_comments_count + 1 WHERE post_id = $the_post_id";
-                $update_comment_count_query = mysqli_query($connection, $query);
+                        if (!$create_comment_query) {
+                            die("Sorry, something is not right " . mysqli_error($connection));
+                        } else echo "Comment submitted successfully";
+                    }
+
+                    //updating the post_comments_count
+                    $query = "UPDATE posts SET post_comments_count = post_comments_count + 1 WHERE post_id = $the_post_id";
+                    $update_comment_count_query = mysqli_query($connection, $query);
 
                 } else {
                     echo "<script>alert('Fields cannot be empty')</script>";
                 }
+                //fixing form-resubmission message i.e. reloading the page afresh after comment submission
+                //redirect("/cms/post.php?p_id = $the_post_id");
+                /*$page = $_SERVER['PHP_SELF'];
+                header("Location: $page");*/
             }
             ?>
             <!-- Comments Form -->
             <div class="well">
                 <h4>Leave a Comment:</h4>
                 <form role="form" action="" method="post">
+                    <!--passing the post id via a hidden form input to avoid the error caused by 'checking for post' condition-->
+                    <input type="hidden" value="<?= isset($the_post_id) ?? null?>">
                     <div class="form-group">
-                        <label for="author">Author</label>
-                        <input type="text" class="form-control" name="comment_author">
+                        <label for="comment_author">Author</label>
+                        <input id="comment_author" type="text" class="form-control" name="comment_author">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -120,7 +145,7 @@ VALUES($the_post_id, '$comment_author', '$comment_email', '$comment_content', 'u
             <!-- Posted Comments -->
             <!--query to display approved comments-->
             <?php
-            $query = "SELECT * FROM comments WHERE comment_post_id = {$the_post_id} 
+            $query = "SELECT * FROM comments WHERE comment_post_id = $the_post_id 
                          AND comment_status = 'approved' ORDER BY comment_id DESC";
 
             $select_comment_query = mysqli_query($connection, $query);

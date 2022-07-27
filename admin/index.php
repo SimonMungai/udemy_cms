@@ -3,6 +3,10 @@
 
     <div id="wrapper">
 
+        <!--user-online functionality-->
+        <?php
+        ?>
+
         <!-- Navigation -->
         <?php
         include "includes/admin_navigation.php";
