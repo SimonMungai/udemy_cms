@@ -25,7 +25,7 @@ while ($row = mysqli_fetch_assoc($select_users)) {
 
 //confirming form data submission
 //updating user data
-if (isset($_POST['edit_user'])){
+if (isset($_POST['edit_user'])) {
     $username = mysqli_real_escape_string($connection, $_POST['username']);
     $user_password = mysqli_real_escape_string($connection, $_POST['user_password']);
     $user_firstname = mysqli_real_escape_string($connection, $_POST['user_firstname']);
@@ -43,38 +43,52 @@ if (isset($_POST['edit_user'])){
     move_uploaded_file($user_image_tmp, "../images/$user_image");
 
     //making sure the image field is not empty when not updating it to avoid choosing it again.
-    if (empty($user_image)){
+    if (empty($user_image)) {
         $query = "SELECT * FROM users WHERE user_id = $the_user_id";
         $select_image = mysqli_query($connection, $query);
 
-        while ($row = mysqli_fetch_assoc($select_image)){
+        while ($row = mysqli_fetch_assoc($select_image)) {
             $user_image = $row['user_image'];
         }
     }
 
-    //fetching randsalt default value from database
-    $query = "SELECT randsalt FROM users";
-    $select_query = mysqli_query($connection, $query);
-    confirmQuery($select_query);
-    //encrypting password
-    $row = mysqli_fetch_array($select_query);
-    $salt = $row['randsalt'];
-    $encrypted_password = crypt($user_password, $salt);
+        //fetching randsalt default value from database
+        /*$query = "SELECT randsalt FROM users";
+        $select_query = mysqli_query($connection, $query);
+        confirmQuery($select_query);*/
 
-    //query to update table records
-    $query ="UPDATE users SET username = '{$username}', user_password = '{$encrypted_password}', user_firstname = '{$user_firstname}', 
+        //encrypting password
+        /*$row = mysqli_fetch_array($select_query);
+        $salt = $row['randsalt'];
+        $encrypted_password = crypt($user_password, $salt);*/
+    if (!empty($user_password)) { //
+        $query = "SELECT user_password FROM users WHERE user_id = $the_user_id";
+        $get_user_query = mysqli_query($connection, $query);
+        confirmQuery($get_user_query);
+
+        $row = mysqli_fetch_array($get_user_query);
+
+        $db_user_password = $row['user_password'];
+
+        if ($db_user_password != $user_password) {
+            $encrypted_password = password_hash($user_password, PASSWORD_BCRYPT, array('cost' => 12));
+        }
+
+        //query to update table records
+        $query = "UPDATE users SET username = '{$username}', user_password = '{$encrypted_password}', user_firstname = '{$user_firstname}', 
                  user_lastname = '{$user_lastname}', user_email = '{$user_email}', user_image = '{$user_image}', 
                  user_role = '{$user_role}' WHERE user_id = {$the_user_id}";
 
-    //sending to database
-    $edit_user_query = mysqli_query($connection, $query);
+        //sending to database
+        $edit_user_query = mysqli_query($connection, $query);
 
-    //confirming if everything went well
-    confirmQuery($edit_user_query);
+        //confirming if everything went well
+        confirmQuery($edit_user_query);
 
-    if (!$edit_user_query){
-        die("something is not right!" . mysqli_error($connection));
-    } else echo "User details updated successfully.";
+        if (!$edit_user_query) {
+            die("something is not right!" . mysqli_error($connection));
+        } else echo "User details updated successfully.";
+    }
 }
 ?>
 
@@ -101,7 +115,7 @@ if (isset($_POST['edit_user'])){
 
     <div class="form-group">
         <label for="user_password">Password</label>
-        <input type="password" class="form-control" value="<?php echo $user_password?>" name="user_password">
+        <input type="password" class="form-control" autocomplete="off" value="" name="user_password">
     </div>
 
     <div class="form-group">

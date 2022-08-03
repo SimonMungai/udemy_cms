@@ -108,7 +108,7 @@ include "includes/admin_header.php";
 
                         <div class="form-group">
                             <label for="user_password">Password</label>
-                            <input type="password" class="form-control" value="<?php echo $user_password?>" name="user_password">
+                            <input type="password" class="form-control" autocomplete="off" value="" name="user_password">
                         </div>
 
                         <div class="form-group">

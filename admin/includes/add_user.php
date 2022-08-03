@@ -2,7 +2,10 @@
 //include "../includes/db.php";
 if (isset($_POST['create_user'])){
     $username = $_POST['username'];
+    //encrypting the password
     $user_password = $_POST['user_password'];
+    $user_password = password_hash($user_password, PASSWORD_BCRYPT, array('cost' => 10));
+
     $user_firstname = $_POST['user_firstname'];
     $user_lastname = $_POST['user_lastname'];
     $user_email = $_POST['user_email'];
@@ -76,7 +79,7 @@ if (isset($_POST['create_user'])){
     </div>
 
     <div class="form-group">
-        <input type="submit" class="btn btn-primary" value="Publish Post" name="create_user">
+        <input type="submit" class="btn btn-primary" value="Add user" name="create_user">
     </div>
 
 </form>
